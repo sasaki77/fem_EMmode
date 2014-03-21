@@ -12,3 +12,5 @@ all:
 clean:
 	cd $(WORK_DIR)/fem; make clean;
 	cd $(WORK_DIR)/femvis; make clean;
+	$(RM) $(BIN_DIR)/fem
+	$(RM) $(BIN_DIR)/femvis
