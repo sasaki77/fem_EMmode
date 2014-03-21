@@ -213,6 +213,20 @@ void FEM::output(string ofname,double timer)
   }
 }
 
+void FEM::outputEonRAxis( string ofname )
+{
+  ofstream ofs((ofname + "_Ez_z.txt").c_str());
+  ofs << "node num = " << node.size() << endl;
+  ofs << "element num = " << elem.size() << endl;
+
+  for(int i=0;i<node.size();i++){
+	  if( fabs(node[i].r)<CALC_EPS ){
+		  ofs << node[i].z << "\t" << node[i].Ez << endl;
+	  }
+  }
+
+}
+
 void FEM::disp()
 {
   cout << "  number of nodes    :" << node.size() << endl;

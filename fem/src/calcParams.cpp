@@ -9,13 +9,6 @@ void FEM::calcEField()
 {
   for(int i=0;i<elem.size();i++)
     elem[i]->calcEfield(&u,omega);
-  
-  ofstream ofs("Ez_z.txt");
-  ofs << "node num = " << node.size() << endl;
-  ofs << "element num = " << elem.size() << endl;
-  for(int i=0;i<node.size();i++)
-  if( fabs(node[i].r)<CALC_EPS )
-    ofs << node[i].z << "\t" << node[i].Ez << endl;
 }
 
 // ==================== 入射電力と磁場分布より実際の磁場の値を計算 ====================
