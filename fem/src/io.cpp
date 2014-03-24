@@ -7,10 +7,10 @@ void FEM::input(string ifname)
 {
   if( ifname.empty() ){
     cout << " input >> " ;
-    cin >> ifname;
+    cin  >> ifname;
   }
 
-  string fname_in = ifname + ".elem";
+  string   fname_in = ifname + ".elem";
   ifstream ifs_in(fname_in.c_str());
 
   if( !ifs_in ){
@@ -21,8 +21,9 @@ void FEM::input(string ifname)
   }
 
   double dummy;
-  int nodenum,elemnum;
+  int    nodenum,elemnum;
   double mind=DBL_MAX,maxd=DBL_MIN;
+  
   ifs_in >> form;
   ifs_in >> nodenum;
   ifs_in >> elemnum;
@@ -49,6 +50,7 @@ void FEM::input(string ifname)
     case 3:elem[i] = new Quad1Element();break;
     case 4:elem[i] = new Quad2Element();break;
     }
+    
     ifs_in >> dummy;
 
     elem[i]->id = i;
@@ -69,7 +71,7 @@ void FEM::input(string ifname)
   u.resize( node.size() );
 
 
-  string fname_bc = ifname + ".bc";
+  string   fname_bc = ifname + ".bc";
   ifstream ifs_bc(fname_bc.c_str());
 
   if( !ifs_bc ){
@@ -80,7 +82,7 @@ void FEM::input(string ifname)
   }
 
   char buff[BUFF_SIZE];
-  int read_state = 0;
+  int  read_state = 0;
 
   while( ifs_bc.getline( buff,BUFF_SIZE  ) ){
     if( buff[0] == '\n' || buff[0] == '\r' || buff[0] == '\0') continue;
@@ -96,9 +98,9 @@ void FEM::input(string ifname)
       while( ifs_bc.getline( buff,BUFF_SIZE ) ){
 	if( (string)buff == "$end" ) break;
 	
-	stringstream ss;
+	stringstream     ss;
 	vector< string > vs;
-	char minibuff[BUFF_SIZE];
+	char             minibuff[BUFF_SIZE];
 
 	ss << (string)buff;
 
@@ -116,7 +118,7 @@ void FEM::input(string ifname)
 
     case 2:
       // 材料特性の読み込み
-      // materialはedgeの数が示されているためfor文で読み出す
+      // materialはedgeの数が示されているためfor文で読み出す
       int edgenum;
       int p1,p2,p3;
       ifs_bc >> edgenum;
@@ -173,7 +175,7 @@ void FEM::output(string ofname,double timer)
 {
   ofstream ofs((ofname+".out").c_str());
   
-  // 始めに$で囲まれている部分は"femvis"で読み飛ばされる
+  // 始めに$で囲まれている部分は"femvis"で読み飛ばされる
   ofs << "$----------------------------------------" << endl;
   // 実行した日時の表示
   time_t     current;
@@ -201,14 +203,14 @@ void FEM::output(string ofname,double timer)
   ofs << elem.size() << endl;
 
   for(int i=0;i<node.size();i++)
-    //    ofs << i+1 << " " << node[i].z << " " << node[i].r << " " << u[i] << " "
-    //	<< Ez[i] << " " << Er[i] << " " << endl;
     ofs << i+1 << " " << node[i].z << " " << node[i].r << " " << u[i] << " "
 	<< node[i].Ez << " " << node[i].Er << " " << endl;
   
   for(int i=0;i<elem.size();i++){
     ofs << i+1;
-    for(int j=0;j<elem[i]->getVertexNum();j++) ofs << " " << elem[i]->getVertexId(j);
+    for(int j=0;j<elem[i]->getVertexNum();j++){
+      ofs << " " << elem[i]->getVertexId(j);
+    }
     ofs << endl;
   }
 }
@@ -216,7 +218,7 @@ void FEM::output(string ofname,double timer)
 void FEM::outputEonRAxis( string ofname )
 {
   ofstream ofs((ofname + "_Ez_z.txt").c_str());
-  ofs << "node num = " << node.size() << endl;
+  ofs << "node num = "    << node.size() << endl;
   ofs << "element num = " << elem.size() << endl;
 
   for(int i=0;i<node.size();i++){
@@ -233,7 +235,9 @@ void FEM::disp()
   cout << "  number of elements :" << elem.size() << endl;
   for(int i=0;i<node.size();i++) cout << node[i] << endl;
   for(int i=0;i<mt_edge.size();i++) cout << "  edge[" << i << "] = " << *mt_edge[i] << endl;
-  for(int i=0;i<elem.size();i++) cout << *elem[i] << endl;
+  for(int i=0;i<elem.size();i++){
+    cout << *elem[i] << endl;
+  }
 //   for(int i=0;i<elem.size();i++){
 //     cout << "  elem-" << elem[i]->id << " " << elem[i] << endl;
 //     cout << "  eA" << endl;
