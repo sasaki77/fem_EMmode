@@ -390,6 +390,7 @@ class FEM{
   void input(string);
   void input_re(string); // input already calculated file
   void output(string,double);
+  void outputEonRAxis( string );
   void disp();
   void memo(double);
 

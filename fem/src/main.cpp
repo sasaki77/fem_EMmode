@@ -60,6 +60,7 @@ int main( int argv, char* argc[] )
     timer = difftime(end_t,start_t);
 
   fem.output(ifname,timer);
+  fem.outputEonRAxis(ifname);
   cout << "end." << endl << endl;
 
   cout << "----------------------------------------" << endl;
@@ -77,7 +78,7 @@ int main( int argv, char* argc[] )
 //   double timer;
 //   if( (timer = (double)(end_c-start_c)/CLOCKS_PER_SEC) > 1.0 )
 //     timer = difftime(end_t,start_t);
-  fem.memo(timer);
+  //fem.memo(timer);
 
   cout << "==================================================" << endl;
 
