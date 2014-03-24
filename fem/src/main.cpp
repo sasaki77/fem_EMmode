@@ -11,20 +11,25 @@ int main( int argv, char* argc[] )
   cout << " fem " << endl;
   cout << "--------------------------------------------------" << endl;
 
+  // 実行時の"-set"オプション -> 計算済みのファイルから場の計算のみを行う
   bool useCalculatedFile = false;
-  for(int i=0;i<argv;i++)
-    if((string)argc[i] == "-set")
+  for(int i=0; i<argv; i++){
+    if((string)argc[i] == "-set"){
       useCalculatedFile = true;
+    }
+  }
 
   string ifname = "";
-  if( argv >= 2 && argc[1][0] != '-' ) ifname = (string)argc[1];
+  if( argv >= 2 && argc[1][0] != '-' ){
+    ifname = (string)argc[1];
+  }
 
   cout << "fem.input()..." << endl;
   fem.input(ifname);
   cout << "end." << endl << endl;
 
   clock_t start_c=0,end_c=0;
-  time_t start_t, end_t;
+  time_t  start_t, end_t;
 
   if(useCalculatedFile){
     // 計算済みのファイルを使う
@@ -34,7 +39,7 @@ int main( int argv, char* argc[] )
   }else{
     
     // 時間計測と記録
-    // 1秒以下ならclock_tで，それ以上の長時間ならtime_tで時間を計測する
+    // 1秒以下ならclock_tで，それ以上の長時間ならtime_tで時間を計測する
     start_c = clock();
     time(&start_t);
 

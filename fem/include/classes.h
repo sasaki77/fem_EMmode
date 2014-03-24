@@ -6,15 +6,17 @@
 class Node{
  public:
   double z,r;
-  bool known;
+  bool   known;
   double val;
   double Ez,Er;
-  int id;
+  int    id;
+  
   void setNode( double _z, double _r ){ z=_z;r=_r; }
 
   static double len(Node p1,Node p2){
     double dx = fabs(p1.z - p2.z);
     double dy = fabs(p1.r - p2.r);
+    
     return sqrt( dx*dx + dy*dy );
   }
 };
@@ -24,8 +26,9 @@ class Edge{
   string material;
 
   virtual double calcPowerLoss(vector<double>* u,double) = 0;
-  virtual double N(int,double) = 0;
-  virtual double N_xi(int,double) = 0;
+  virtual double N(int,double)                           = 0;
+  virtual double N_xi(int,double)                        = 0;
+  
   double getSurfResist(double omega){
     double sigma;
     if( material == "$Cu" ){
@@ -74,13 +77,17 @@ class P2Edge: public Edge{
   double calcPowerLoss(vector<double>* u,double omega){
     double f=0;
     double P_wall = 0;
+    
     for(int m=0;m<2;m++){
       double xi,w;
+      
       switch(m+1){
       case 1: xi = -1/sqrt(3); w = 1; break;
       case 2: xi =  1/sqrt(3); w = 1; break;
       }
+      
       double NH=0, Nz=0, Nr=0, NR=0;
+      
       for(int j=0;j<2;j++){
 	NH += N(j+1,xi) * (*u)[p[j]->id];
 	NR += N(j+1,xi) * p[j]->r;
@@ -102,7 +109,7 @@ class P2Edge: public Edge{
   };
 
   bool operator==( const P2Edge& obj ){
-    return ( p[1] == obj.p[1] && p[0] == obj.p[0]  ||
+    return ( (p[1] == obj.p[1] && p[0] == obj.p[0])  ||
 	     (p[0] == obj.p[1] && p[1] == obj.p[0]));
   }
   bool operator!=( const P2Edge& obj ){
@@ -119,12 +126,14 @@ class P3Edge: public Edge{
     p[1] = NULL;
     p[2] = NULL;
   }
+  
   // p[0]:始点(xi=-1) p[1]:中点(xi=0) p[2]:終点(xi=1)
   P3Edge( Node *_p0, Node *_p1, Node *_p2){
     p[0] = _p0;
     p[1] = _p1;
     p[2] = _p2;
   }
+  
   void set( Node *_p0, Node *_p1, Node *_p2){
     p[0] = _p0;
     p[1] = _p1;
@@ -154,20 +163,25 @@ class P3Edge: public Edge{
   double calcPowerLoss(vector<double>* u,double omega){
     double f=0;
     double P_wall = 0;
+    
     for(int m=0;m<3;m++){
       double xi,w;
+      
       switch(m+1){
       case 1: xi = -sqrt(3./5); w = 5./9; break;
       case 2: xi =  0;          w = 8./9; break;
       case 3: xi =  sqrt(3./5); w = 5./9; break;
       }
+      
       double NH=0, Nz=0, Nr=0, NR=0;
+      
       for(int j=0;j<3;j++){
 	NH += N(j+1,xi) * (*u)[p[j]->id];
 	NR += N(j+1,xi) * p[j]->r;
 	Nz += N_xi(j+1,xi) * p[j]->z;
 	Nr += N_xi(j+1,xi) * p[j]->r;
       }
+      
       //      cout << "NR = " << NR << endl;
       if( p[0]->z == p[1]->z && 
 	  p[1]->z == p[2]->z &&
@@ -176,6 +190,7 @@ class P3Edge: public Edge{
       }else{
 	f += (NR*NH*NH*sqrt(Nz*Nz+Nr*Nr))*w;
       }
+      
       double rs = getSurfResist(omega);
       //    cout << "f = " << f <<endl;
       P_wall += M_PI*rs*f;
@@ -195,39 +210,39 @@ class P3Edge: public Edge{
 
 class Element{
  public:
-  int id;
+  int    id;
   double area;
   double length;
 
   virtual void setParams() = 0;
   virtual void setMatrix() = 0;
   
-  virtual int getVertexNum() = 0;
-  virtual int getVertexId(int) = 0;
-  virtual void setNode(int,Node*) = 0;
+  virtual int getVertexNum()        = 0;
+  virtual int getVertexId(int)      = 0;
+  virtual void setNode(int,Node*)   = 0;
   virtual double getAvalue(int,int) = 0;
   virtual double getBvalue(int,int) = 0;
 
   virtual void calcEfield(vector<double>*,double) = 0;
-  virtual double calcPsum(vector<double>*) = 0;
+  virtual double calcPsum(vector<double>*)        = 0;
 
-  // ===== 以下のメソッドは setMatrix() で用いる =====
+  // ===== 以下のメソッドは setMatrix() で用いる =====
  public:
-  virtual double N(int,double,double) = 0;
-  virtual double N_xi(int,double,double) = 0;
+  virtual double N(int,double,double)     = 0;
+  virtual double N_xi(int,double,double)  = 0;
   virtual double N_eta(int,double,double) = 0;
-  virtual double N_z(int,double,double) = 0;
-  virtual double N_r(int,double,double) = 0;
-  virtual double z_xi(double,double) = 0;
-  virtual double z_eta(double,double) = 0;
-  virtual double r_xi(double,double) = 0;
-  virtual double r_eta(double,double) = 0;
-  virtual double jcb(double,double) = 0; 
+  virtual double N_z(int,double,double)   = 0;
+  virtual double N_r(int,double,double)   = 0;
+  virtual double z_xi(double,double)      = 0;
+  virtual double z_eta(double,double)     = 0;
+  virtual double r_xi(double,double)      = 0;
+  virtual double r_eta(double,double)     = 0;
+  virtual double jcb(double,double)       = 0; 
 };
 
 class Tri1Element: public Element{
  public:
-  Node *p[3];
+  Node   *p[3];
   double eA[3][3];
   double eB[3][3];  
   
@@ -235,18 +250,19 @@ class Tri1Element: public Element{
     p[0] = NULL; p[1] = NULL; p[2] = NULL;
   }
 
-  void setParams();
-  void setMatrix();
-  int getVertexNum(){ return 3; };
-  void setNode(int i,Node* _p){ p[i]=_p; };
-  int getVertexId(int i){ return p[i]->id; };
+  void   setParams();
+  void   setMatrix();
+  
+  int    getVertexNum(){ return 3; };
+  void   setNode(int i,Node* _p){ p[i]=_p; };
+  int    getVertexId(int i){ return p[i]->id; };
   double getAvalue(int i,int j){ return eA[i][j];  };
   double getBvalue(int i,int j){ return eB[i][j];  };
 
-  void calcEfield(vector<double>*,double);
+  void   calcEfield(vector<double>*,double);
   double calcPsum(vector<double>*);
 
-  // ===== 以下のメソッドは setMatrix() で用いる =====
+  // ===== 以下のメソッドは setMatrix() で用いる =====
  public:
   double N(int,double,double);
   double N_xi(int,double,double);
@@ -262,7 +278,7 @@ class Tri1Element: public Element{
 
 class Tri2Element: public Element{
  public:
-  Node *p[6];
+  Node   *p[6];
   double eA[6][6];
   double eB[6][6];  
   
@@ -271,18 +287,18 @@ class Tri2Element: public Element{
     p[3] = NULL; p[4] = NULL; p[5] = NULL;
   }
 
-  void setParams();
-  void setMatrix();
-  int getVertexNum(){ return 6; };
-  void setNode(int i,Node* _p){ p[i]=_p; };
-  int getVertexId(int i){ return p[i]->id; };
+  void   setParams();
+  void   setMatrix();
+  int    getVertexNum(){ return 6; };
+  void   setNode(int i,Node* _p){ p[i]=_p; };
+  int    getVertexId(int i){ return p[i]->id; };
   double getAvalue(int i,int j){ return eA[i][j];  };
   double getBvalue(int i,int j){ return eB[i][j];  };
 
-  void calcEfield(vector<double>*,double);
+  void   calcEfield(vector<double>*,double);
   double calcPsum(vector<double>*);
 
-  // ===== 以下のメソッドは setMatrix() で用いる =====
+  // ===== 以下のメソッドは setMatrix() で用いる =====
  public:
   double N(int,double,double);
   double N_xi(int,double,double);
@@ -298,7 +314,7 @@ class Tri2Element: public Element{
 
 class Quad1Element: public Element{
  public:
-  Node *p[4];
+  Node   *p[4];
   double eA[4][4];
   double eB[4][4];  
   
@@ -306,18 +322,18 @@ class Quad1Element: public Element{
     p[0] = NULL; p[1] = NULL; p[2] = NULL; p[3] = NULL;
   }
 
-  void setParams();
-  void setMatrix();
-  int getVertexNum(){ return 4; };
-  void setNode(int i,Node* _p){ p[i]=_p; };
-  int getVertexId(int i){ return p[i]->id; };
+  void   setParams();
+  void   setMatrix();
+  int    getVertexNum(){ return 4; };
+  void   setNode(int i,Node* _p){ p[i]=_p; };
+  int    getVertexId(int i){ return p[i]->id; };
   double getAvalue(int i,int j){ return eA[i][j];  };
   double getBvalue(int i,int j){ return eB[i][j];  };
 
   void calcEfield(vector<double>*,double);
   double calcPsum(vector<double>*);
 
-  // ===== 以下のメソッドは setMatrix() で用いる =====
+  // ===== 以下のメソッドは setMatrix() で用いる =====
  public:
   double N(int,double,double);
   double N_xi(int,double,double);
@@ -333,7 +349,7 @@ class Quad1Element: public Element{
 
 class Quad2Element: public Element{
  public:
-  Node *p[8];
+  Node   *p[8];
   double eA[8][8];
   double eB[8][8];  
   
@@ -342,18 +358,18 @@ class Quad2Element: public Element{
     p[4] = NULL; p[5] = NULL; p[6] = NULL; p[7] = NULL;
   }
 
-  void setParams();
-  void setMatrix();
-  int getVertexNum(){ return 8; };
-  void setNode(int i,Node* _p){ p[i]=_p; };
-  int getVertexId(int i){ return p[i]->id; };
+  void   setParams();
+  void   setMatrix();
+  int    getVertexNum(){ return 8; };
+  void   setNode(int i,Node* _p){ p[i]=_p; };
+  int    getVertexId(int i){ return p[i]->id; };
   double getAvalue(int i,int j){ return eA[i][j];  };
   double getBvalue(int i,int j){ return eB[i][j];  };
 
-  void calcEfield(vector<double>*,double);
+  void   calcEfield(vector<double>*,double);
   double calcPsum(vector<double>*);
 
-  // ===== 以下のメソッドは setMatrix() で用いる =====
+  // ===== 以下のメソッドは setMatrix() で用いる =====
  public:
   double N(int,double,double);
   double N_xi(int,double,double);
@@ -371,21 +387,21 @@ class FEM{
  public:
   int form;
   vector< Element* > elem;
-  vector< Node > node;
-  vector< Edge* > mt_edge; // edges for material of surface of cavity
-  double lambda;
-  vector< vector< double > > A;
-  vector< vector< double > > B;
-  vector< double > u;  //H_theta, u[i]はnode[i]における磁場 [A/m]
- 
-  double P_in;   // input power [j]
-  double P_wall; // power dissipation on metal wall [W]
-  double omega;  // 2*pi*frequency [1/s]
-  double Q;      // Q-value        [(dimensionless)]
-  double E0;     // average of electric field on Z axis.
-  double LenZ;   // length of Z axis.
-  double MAX_H;
-  double R;      // shunt impedance
+  vector< Node >     node;
+  vector< Edge* >    mt_edge;	 // edges for material of surface of cavity
+  double lambda;		  
+  vector< vector< double > > A;	  
+  vector< vector< double > > B;	  
+  vector< double > u;		 //H_theta, u[i]はnode[i]における磁場 [A/m]
+ 				  
+  double P_in;		// input power [j]
+  double P_wall;	// power dissipation on metal wall [W]
+  double omega;		// 2*pi*frequency [1/s]
+  double Q;		// Q-value        [(dimensionless)]
+  double E0;		// average of electric field on Z axis.
+  double LenZ;		// length of Z axis.
+  double MAX_H;			  
+  double R;		// shunt impedance
 
   void input(string);
   void input_re(string); // input already calculated file
@@ -401,6 +417,7 @@ class FEM{
   void calcMField();
   void calcEField();
   void calcPowerLoss();
+  
   double getAveragedArea()
   {
     double sum=0;
@@ -409,6 +426,7 @@ class FEM{
     sum /= elem.size();
     return sum;
   }
+  
   double getAveragedLength()
   {
     double sum = 0;
