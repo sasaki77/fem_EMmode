@@ -147,13 +147,18 @@ void FEM::input(string ifname)
 }
 
 void FEM::input_re(string ifname){
-  string ifname_re = ifname + "_out.txt";
+  string ifname_re = ifname + ".out";
   ifstream ifs(ifname_re.c_str());
   if( !ifs ){
     cout << " cannot open \"" << ifname_re << "\" in INPUT()" << endl;
     exit(EXIT_FAILURE);
   }else{
     cout << " open \"" << ifname_re << "\"" << endl;
+  }
+  
+  // $で囲まれている始めの部分を読み飛ばす
+  for(int i=0;i<2;i++){
+    ifs.ignore(numeric_limits<std::streamsize>::max() , '$');
   }
   double dummy;
   ifs >> dummy; // ignore information of order
